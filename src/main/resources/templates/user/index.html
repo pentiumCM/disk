@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout::commonHeader('用户管理')">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body class="no-skin">
+<div th:replace="layout::commonNar"></div>
+<input type="hidden" id="hidden-currentUserId" th:value="${currentUserId}">
+<div class="main-container ace-save-state" id="main-container" >
+    <div th:replace="layout::commonSidebar"></div>
+    <div  class="main-content">
+        <div class="main-content-inner">
+            <div class="page-content"  id="main"  style="">
+                <div class="tableTools-container " id="controlPanel">
+                    <button class="btn btn-white btn-info btn-bold" onclick="ui.add();">
+                        <i class="ace-icon fa fa-plus-circle bigger-120 blue"></i>
+                        新增
+                    </button>
+                </div>
+                <table id="dgGrid" class="display table table-striped table-bordered table-hover dataTable no-footer" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>登录名</th>
+                        <th>性别</th>
+                        <th>角色</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div><!-- /.page-content -->
+        </div>
+    </div><!-- /.main-content -->
+    <div id="dialog-message" class="hide">
+        <!-- PAGE CONTENT BEGINS -->
+        <form class="form-horizontal" role="form" id="validation-form">
+            <div class="form-group">
+             <label class="col-sm-2 control-label no-padding-right" > 账号 </label>
+            <div class="col-sm-10">
+                <div class="clearfix">
+                    <input type="hidden" id="id" value="0" name="id">
+                     <input type="text" id="loginName" name="loginName" placeholder="唯一" class="col-xs-10 col-sm-10" />
+                </div>
+            </div>
+        </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label no-padding-right"> 昵称 </label>
+                <div class="col-sm-10">
+                    <input type="text" id="nickName" name="nickName" placeholder="昵称" class="col-xs-10 col-sm-10" />
+                </div>
+            </div>
+            <div class="form-group">
+            <label class="col-sm-2 control-label no-padding-right"> 角色  </label>
+            <div class="col-sm-10">
+                <div class="radio">
+                    <label>
+                        <input name="role" type="radio" class="ace" value="User"/>
+                        <span class="lbl"> 普通用户</span>
+                    </label>
+                    <label>
+                        <input name="role" type="radio" class="ace"  value="Admin" />
+                        <span class="lbl"> 超级管理员</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label no-padding-right"> 性别 </label>
+                <div class="col-sm-10">
+                    <div class="radio">
+                        <label>
+                            <input name="sex" type="radio" class="ace" value="1"/>
+                            <span class="lbl"> 男</span>
+                        </label>
+                        <label>
+                            <input name="sex" type="radio" class="ace"  value="2" />
+                            <span class="lbl"> 女</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label no-padding-right"> 用户状态 </label>
+                <div class="col-sm-10">
+                    <div class="radio">
+                        <label>
+                            <input name="status" type="radio" class="ace"   value="1"/>
+                            <span class="lbl"> 正常</span>
+                        </label>
+                        <label>
+                            <input name="status" type="radio" class="ace"  value="2"/>
+                            <span class="lbl"> 禁用</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div><!-- #dialog-message -->
+    <div id="resetpwd-dialog-message" class="hide">
+        <!-- PAGE CONTENT BEGINS -->
+        <form class="form-horizontal" role="form" >
+            <div class="form-group">
+                <label class="col-sm-2 control-label no-padding-right" > 账号 </label>
+                <div class="col-sm-10">
+                    <div class="clearfix">
+                        <input type="hidden"  value="0" name="id">
+                        <input type="text"  name="loginName" placeholder="" class="col-xs-10 col-sm-10 " readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label no-padding-right"> 新密码 </label>
+                <div class="col-sm-10">
+                    <input type="password" name="pwd" placeholder="新密码"  class="col-xs-10 col-sm-10"/>
+                </div>
+            </div>
+
+        </form>
+
+    </div><!-- #dialog-message -->
+    <div th:replace="layout::commonFooter">
+    </div>
+
+    <script>
+        var ui={
+            validated:function() {
+                $('#validation-form').jqvalidate({
+                    rules: {
+                        pwd: {
+                            required: true
+                        }
+                    },
+
+                    messages: {
+                        pwd: {
+                            required: "请输入新密码",
+                        },
+                    }
+                });
+
+                $('#validation-form').jqvalidate({
+                    rules: {
+                        loginName: {
+                            required: true
+                        },
+                        sex: {
+                            required: true,
+                        },
+                        role: {
+                            required: true,
+                        },
+                        status: {
+                            required: true,
+                        }
+                    },
+
+                    messages: {
+                        loginName: {
+                            required: "请输入账号",
+                        },
+                        sex:"请选择性别",
+                        status: "请选择用户状态",
+                    },
+                });
+            },
+            editInfo:function(title,id){
+                if(id!=0){
+                    $.ajax({
+                        url:'/user/'+id,
+                        success:function (result) {
+                            $('#validation-form input[name=loginName]').attr('readonly','readOnly');
+                            $('#validation-form').loadJson(result)
+                        }
+                    });
+                }else {
+                    $('#validation-form input[name=loginName]').removeAttr('readonly');
+                    $('#validation-form')[0].reset();
+                }
+                $('#id').val(id);
+                var dialog = $( "#dialog-message").removeClass('hide').dialog({
+                    modal: true,
+                    title: "<div class='widget-header widget-header-small'><h4 class='smaller'><i class='ace-icon fa fa-check'>"+title+"</i></h4></div>",
+                    title_html: true,
+                    width: '520',
+                    buttons: [
+                        {
+                            text: "取消",
+                            "class" : "btn btn-minier",
+                            click: function() {
+                                $(this).dialog( "close" );
+                            }
+                        },
+                        {
+                            text: "确认",
+                            "class" : "btn btn-primary btn-minier",
+                            click: function() {
+                                if(!$('#validation-form').valid()) {
+                                    return false;
+                                }
+                                console.log($('#validation-form').serializeObject())
+                                var $this=$(this);
+                                $.ajax({
+                                    type:'post',
+                                    url:'/user/edit',
+                                    data:JSON.stringify($('#validation-form').serializeObject()),
+                                    success:function (result) {
+                                        bootbox.alert({
+                                            size: "small",
+                                            title: "提示",
+                                            message: result.errMsg,
+                                            callback:function () {
+                                                $('#dgGrid').DataTable().ajax.reload();
+                                                ui.setEvent();
+                                            }
+                                        })
+                                        if(result.success){
+                                            $this.dialog( "close" );
+                                        }
+                                    }
+                                })
+                            }
+                        }
+                    ]
+                });
+            },
+            add:function () {
+                ui.editInfo('新增用户',0)
+            },
+            edit:function (id) {
+                ui.editInfo('编辑用户',id)
+            },
+            deleted:function (id) {
+                bootbox.confirm("你确认要删除?", function(result){
+                 if(result){
+                    $.ajax({
+                        type:'post',
+                        url:'/user/delete/'+id,
+                        success:function(){
+                            bootbox.alert({
+                                size: "small",
+                                title: "提示",
+                                message: '操作成功',
+                                callback:function () {
+                                    $('#dgGrid').DataTable().ajax.reload()
+                                }
+                            })
+                        }
+                    })
+                 }
+                })
+            },
+            setGrid:function () {
+
+
+              $('#dgGrid').DataTable({
+                  "serverSide":true,
+                  stripeClasses: ["odd", "even"],  //为奇偶行加上样式，兼容不支持CSS伪类的场合
+                  "pageLength": 10,  //首次加载的数据条数
+                  "ordering": false, //排序操作在服务端进行，所以可以关了。
+                  "paging":true,
+                  "pagingType": "simple_numbers",
+                  "autoWidth": false,
+                  renderer: "bootstrap",  //渲染样式：Bootstrap和jquery-ui
+                  "searching": true,//禁用搜索
+                    ajax:function(d, callback, settings){
+                        var param = {};
+                        param.page = d.start/d.length;
+                        // param.start = d.start;
+                        param.size = d.length;
+                        param.search=d.search.value;
+                       $.ajax({
+                           url:'/user/',
+                           data: param,
+                           success:function(result){
+                               var returnData = {
+                                   draw:d.draw,
+                                   recordsTotal:result.totalElements,
+                                   recordsFiltered:result.totalElements,
+                                   totalPages:result.totalPages,
+                                   data:result.content,
+                               };
+                               callback(returnData)
+                           }
+                       })
+                    },
+                    language: {
+                        url: '/assets/localisation/Chinese.json'
+                    },
+                    columns: [
+                        { data: 'id' },
+                        { data: 'loginName' },
+                        { data: 'sex' },
+                        { data: 'role' },
+                        { data: 'status' }
+                    ],
+                    'columnDefs':[
+                        {
+                            'targets':2,
+                            'render':function ( data, type, full, meta ) {
+                                if(full.sex=="1")return '<span class="label label-success">男</span>';
+                                else if(full.sex=='2')return  '<span class="label label-primary">女</span>';
+                                else return '未知性别'
+                            }
+                        },
+                        {
+                            'targets':3,
+                            'render':function ( data, type, full, meta ) {
+                                if(full.role=="User")return '<span class="label label-success">普通用户</span>';
+                                else if(full.role=='Admin')return  '<span class="label label-primary">超级管理员</span>';
+                                else return '未知角色'
+                            }
+                        },
+                        {
+                            targets: 4,
+                            render: function (data, type, full, meta) {
+                                if (full.status == 1) {
+                                    return '<span class="label label-primary">正常</span>'
+                                } else {
+                                    return '<span class="label label-danger">禁用</span>'
+                                }
+                            }
+                        },{
+                            targets:5,
+                            render:function(data,type,full,meta){
+                                return '<div class="hidden-sm hidden-xs action-buttons">\n' +
+                                    '\t<a class="green edit-button" href="#" title="修改文件名">\n' +
+                                    '\t\t<i class="ace-icon fa fa-pencil bigger-130"></i>\n' +
+                                    '\t</a>\n' +
+                                    '\n' +
+                                    '\t<a class="red delete-button" href="#" title="删除" >\n' +
+                                    '\t\t<i class="ace-icon fa fa-trash-o bigger-130"></i>\n' +
+                                    '\t</a>\n' +
+                                    '\t<a class="red reset-pwd-button" href="#" title="重置密码" >\n' +
+                                    '\t\t<i class="ace-icon fa fa-key bigger-130"></i>\n' +
+                                    '\t</a>\n' +
+                                    '</div>'
+                            }
+                        }
+                    ]
+                }).on('draw',function () {
+                  ui.setEvent();
+              });
+            },
+            setEvent:function () {
+                $('a.delete-button').click(function () {
+                    var data = $('#dgGrid').DataTable().row($(this).parents('tr')).data();
+                    console.log(data)
+                    ui.deleted(data.id)
+                } );
+                $('a.edit-button').click(function () {
+                    var data = $('#dgGrid').DataTable().row($(this).parents('tr')).data();
+                    console.log(data)
+                    ui.edit(data.id)
+                } );
+                $('a.reset-pwd-button').click(function () {
+                    var data = $('#dgGrid').DataTable().row($(this).parents('tr')).data();
+                    ui.resetPwd(data);
+                });
+            },
+            resetPwd:function(data){
+                $('#resetpwd-dialog-message form').loadJson(data)
+                var dialog = $( "#resetpwd-dialog-message").removeClass('hide').dialog({
+                    modal: true,
+                    title: "<div class='widget-header widget-header-small'><h4 class='smaller'><i class='ace-icon fa fa-check'>修改密码</i></h4></div>",
+                    title_html: true,
+                    width: '520',
+                    buttons: [
+                        {
+                            text: "取消",
+                            "class" : "btn btn-minier",
+                            click: function() {
+                                $(this).dialog( "close" );
+                            }
+                        },
+                        {
+                            text: "确认",
+                            "class" : "btn btn-primary btn-minier",
+                            click: function() {
+                                if(!$('#resetpwd-dialog-message form').valid()) {
+                                    return false;
+                                }
+                                console.log($('#resetpwd-dialog-message form').serializeObject())
+                                var $this=$(this);
+                                $.ajax({
+                                    type:'post',
+                                    url:'/user/ResetUserPwd',
+                                    data:JSON.stringify($('#resetpwd-dialog-message form').serializeObject()),
+                                    success:function (result) {
+                                        bootbox.alert({
+                                            size: "small",
+                                            title: "提示",
+                                            message: result.errMsg,
+                                            callback:function () {
+                                                $('#dgGrid').DataTable().ajax.reload();
+                                                ui.setEvent();
+                                            }
+                                        })
+                                        if(result.success){
+                                            $this.dialog( "close" );
+                                        }
+                                    }
+                                })
+                            }
+                        }
+                    ]
+                });
+            },
+        }
+        $(document).ready(function() {
+            ui.setGrid();
+            ui.validated();
+        } );
+    </script>
+</div>
+</body>
+</html>

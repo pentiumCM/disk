@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout::commonHeader('')">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+
+<body class="no-skin">
+<div th:replace="layout::commonNar"></div>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<input type="hidden" id="hidden-currentUserId" th:value="${currentUserId}">
+<div class="main-container ace-save-state" id="main-container">
+    <div th:replace="layout::commonSidebar"></div>
+    <div class="user-profile row">
+        <div class="col-xs-12 col-sm-9">
+            <div class="space-12"></div>
+            <form id="form" class="profile-user-info profile-user-info-striped">
+                <div class="profile-info-row">
+                    <div class="profile-info-name"> 文件名</div>
+                    <div class="profile-info-value">
+                        <input type="text" name="shareFileName" readonly class="col-xs-10 col-sm-10"/>
+                    </div>
+                </div>
+                <div class="profile-info-row">
+                    <div class="profile-info-name"> 浏览次数</div>
+                    <div class="profile-info-value">
+                        <input type="text" id="viewCount" name="viewCount" class="col-xs-4 col-sm-4" readonly/>
+                    </div>
+                    <div class="profile-info-name"> 保存次数</div>
+                    <div class="profile-info-value">
+                        <input type="text" id="saveCount" name="saveCount" class="col-xs-4 col-sm-4" readonly/>
+                    </div>
+                </div>
+                <div class="profile-info-row">
+                    <div class="profile-info-name"> 下载次数</div>
+                    <div class="profile-info-value">
+                        <input type="text" id="downloadCount" name="downloadCount" class="col-xs-4 col-sm-4" readonly/>
+                    </div>
+                </div>
+                <div class="profile-info-row">
+                    <div class="profile-info-name"> 分享时间</div>
+                    <div class="profile-info-value">
+                        <input type="text" id="shareTime" name="shareTime" class="col-xs-4 col-sm-4" readonly/>
+                    </div>
+                    <div class="profile-info-name"> 失效时间</div>
+                    <div class="profile-info-value">
+                        <input type="text" id="overtime" name="overtime" class="col-xs-4 col-sm-4" readonly/>
+                    </div>
+                </div>
+                <div class="profile-info-row">
+                    <div class="profile-info-name"> 操作</div>
+                    <div class="profile-info-value">
+                        <div class="col-md-3">
+
+                            <button class="btn-block btn btn-primary " id="btn-download" type="button"><i
+                                    class="fa fa-download"></i>下载
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn-block btn btn-primary " id="btn-save" type="button"><i
+                                    class="fa fa-save"></i>保存至网盘
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <div id="save-file" class="hide">
+        <form class="form-horizontal" role="form">
+            <div class="form-group">
+                <label class="col-sm-2 control-label no-padding-right"> 选择要保存的文件夹 </label>
+                <div class="col-sm-10">
+                    <div class="clearfix">
+                        <select class="form-control" name="folderid" id="folderid">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div><!-- /.main-content -->
+<div th:replace="layout::commonFooter">
+</div>
+<script>
+    var shareToken = cc.getUrlParam('shareToken');
+    var d = null;
+    $.ajax({
+        url: '/shareFile/getByToken?shareToken=' + shareToken,
+        success: function (rr) {
+            $('#form').loadJson(rr);
+            if(rr.overType==2){
+                $('#overtime').val('永不失效!');
+            }
+            d = rr;
+        }
+    })
+
+    $('#btn-download').on('click', function () {
+        if (d.ifSecert == true) {
+            bootbox.prompt({
+                inputType: 'text',
+                size: "small",
+                title: "请输入提取码!",
+                callback: function (result) {
+                    if (result == null) return;
+                    if (result == "") {
+                        bootbox.alert({message: "为空，无法下载"});
+                    } else {
+                        vv.download(result);
+                    }
+                }
+            });
+        } else {
+            vv.download("");
+        }
+    });
+
+    var vv = {
+        set: function () {
+            $('#folderid').empty();
+            $.ajax({
+                url: '/folder/getTreePosition',
+                success: function (dd) {
+                    var result = '<option value="0"> -- 请选择 -- </option>';
+                    $.each(dd, function (i, v) {
+                        result += cc.formatStr('<option value="{0}">{1}</option>', v.id, v.folderName)
+                    })
+                    $('#folderid').append(result)
+                }
+            });
+        },
+        download: function (extractState) {
+            $.ajax({
+                url: '/shareFile/extractState?fileToken=' + d.shareToken + '&extractState=' + extractState,
+                success: function (rrr) {
+                    if (rrr.success == true) {
+                        $.ajax({
+                            url:'/shareFile/downloadCount',
+                            type:'post',
+                            data:JSON.stringify({
+                                shareToken:shareToken
+                            }),
+                            success:function () {
+                                window.open('/file/download?fileToken=' + rrr.errCode + '&newName=' + rrr.errMsg,'_blank');
+                            }
+                        })
+                    } else {
+                        bootbox.alert({
+                            size: "small",
+                            title: "提示",
+                            message: rrr.errMsg
+                        });
+                    }
+                }
+            })
+        },
+        save: function (extractState) {
+            $.ajax({
+                url: '/shareFile/extractState?fileToken=' + d.shareToken + '&extractState=' + extractState,
+                success: function (rrr) {
+                    if (rrr.success == true) {
+
+                        var dialog = $('#save-file').removeClass('hide').dialog({
+                            modal: true,
+                            title: "<div class='widget-header widget-header-small'><h4 class='smaller'><i class='ace-icon fa fa-check'></i>文件上传</h4></div>",
+                            title_html: true,
+                            width: '520',
+                            height: '200',
+                            buttons: [
+                                {
+                                    text: "取消",
+                                    "class": "btn btn-minier",
+                                    click: function () {
+                                        $(this).dialog("close");
+                                    }
+                                },
+                                {
+                                    text: "确认",
+                                    "class": "btn btn-primary btn-minier",
+                                    click: function () {
+                                        var $this = $(this);
+                                        var formObj = $('#save-file form').serializeObject();
+                                        formObj.fileToken = rrr.errCode;
+                                        $.ajax({
+                                            type: 'post',
+                                            url: '/shareFile/save',
+                                            data: JSON.stringify(formObj),
+                                            success: function (r) {
+                                                bootbox.alert({
+                                                    size: "small",
+                                                    title: "提示",
+                                                    message: r.errMsg
+                                                });
+                                                $this.dialog("close");
+
+                                                $.ajax({
+                                                    url:'/shareFile/saveCount',
+                                                    type:'post',
+                                                    data:JSON.stringify({
+                                                        shareToken:shareToken
+                                                    })
+                                                })
+                                            }
+                                        })
+                                    }
+                                }
+                            ]
+                        });
+
+
+                    } else {
+                        bootbox.alert({
+                            size: "small",
+                            title: "提示",
+                            message: rrr.errMsg
+                        });
+                    }
+                }
+            })
+        }
+    }
+
+    vv.set();
+
+    $('#btn-save').on('click', function () {
+        if (d.ifSecert == true) {
+            bootbox.prompt({
+                inputType: 'text',
+                size: "small",
+                title: "请输入提取码!",
+                callback: function (result) {
+                    if (result == null) return;
+                    if (result == "") {
+                        bootbox.alert({message: "为空，无法保存"});
+                    } else {
+                        vv.save(result);
+                    }
+                }
+            });
+        } else {
+            vv.save("");
+        }
+    });
+</script>
+</div>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout::commonHeader('我的分享')">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+
+<body class="no-skin">
+<div th:replace="layout::commonNar"></div>
+<input type="hidden" id="hidden-currentUserId" th:value="${currentUserId}">
+<div class="main-container ace-save-state" id="main-container">
+    <div th:replace="layout::commonSidebar"></div>
+    <div class="main-content">
+        <div class="main-content-inner">
+            <div class="page-content" id="main" style="">
+                <table id="dgGrid" class="display table table-striped table-bordered table-hover dataTable no-footer"
+                       style="width:100%">
+                    <thead>
+                    <tr>
+                        <th>操作</th>
+                        <th>分享文件名</th>
+                        <th>分享时间</th>
+                        <th>失效时间</th>
+                        <th>浏览次数</th>
+                        <th>保存次数</th>
+                        <th>下载次数</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div><!-- /.page-content -->
+        </div>
+    </div><!-- /.main-content -->
+    <div th:replace="layout::commonFooter">
+    </div>
+    <script>
+        var ui = {
+            deleted: function (id) {
+                bootbox.confirm("你确认要取消分享吗?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            type: 'post',
+                            url: '/shareFile/delete/' + id,
+                            success: function () {
+                                bootbox.alert({
+                                    size: "small",
+                                    title: "提示",
+                                    message: '操作成功',
+                                    callback: function () {
+                                        $('#dgGrid').DataTable().ajax.reload()
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
+            },
+            setGrid: function () {
+
+
+                $('#dgGrid').DataTable({
+                    "serverSide": true,
+                    stripeClasses: ["odd", "even"],  //为奇偶行加上样式，兼容不支持CSS伪类的场合
+                    "pageLength": 10,  //首次加载的数据条数
+                    "ordering": false, //排序操作在服务端进行，所以可以关了。
+                    "paging": true,
+                    "pagingType": "simple_numbers",
+                    "autoWidth": false,
+                    renderer: "bootstrap",  //渲染样式：Bootstrap和jquery-ui
+                    "searching": false,//禁用搜索
+                    ajax: function (d, callback, settings) {
+                        var param = {};
+                        param.page = d.start / d.length;
+                        // param.start = d.start;
+                        param.size = d.length;
+                        param.search = d.search.value;
+                        $.ajax({
+                            url: '/shareFile/',
+                            data: param,
+                            success: function (result) {
+                                var returnData = {
+                                    draw: d.draw,
+                                    recordsTotal: result.totalElements,
+                                    recordsFiltered: result.totalElements,
+                                    totalPages: result.totalPages,
+                                    data: result.content,
+                                };
+                                callback(returnData)
+                            }
+                        })
+                    },
+                    language: {
+                        url: '/assets/localisation/Chinese.json'
+                    },
+                    columns: [
+                        {data: 'id'},
+                        {data: 'shareFileName'},
+                        {data: 'shareTime'},
+                        {data: 'overtime'},
+                        {data: 'viewCount'},
+                        {data: 'saveCount'},
+                        {data: 'downloadCount'}
+                    ],
+                    'columnDefs': [
+                        {
+                            targets: 3,
+                            render: function (data, type, full, meta) {
+                                if (full.overType == 2) {
+                                    return '永久有效';
+                                } else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            targets: 0,
+                            render: function (data, type, full, meta) {
+                                return '<div class="hidden-sm hidden-xs action-buttons">\n' +
+                                    '\t<a class="green edit-button" href="#" title="查看分享">\n' +
+                                    '\t\t<i class="ace-icon fa fa-pencil bigger-130"></i>\n' +
+                                    '\t</a>\n' +
+                                    '\n' +
+                                    '\t<a class="red delete-button" href="#" title="取消分享" >\n' +
+                                    '\t\t<i class="ace-icon fa fa-trash-o bigger-130"></i>\n' +
+                                    '\t</a>\n' +
+                                    '</div>'
+                            }
+                        }
+                    ]
+                }).on('draw', function () {
+                    ui.setEvent();
+                });
+            },
+            edit: function (id) {
+                $.ajax({
+                    url: '/shareFile/' + id,
+                    type: 'get',
+                    success: function (rr) {
+                        var d = cc.formatStr("下载链接:<a href='{0}' target='_blank'>{0}</a></br>", 'http://localhost:8080/shareFile/shareIndex?shareToken=' + rr.shareToken);
+                        if (rr.ifSecert == true) {
+                            d += cc.formatStr("提取码:<input type='text' value='{0}' style='width:100%;' readonly/></br>", rr.extractState);
+                        }
+                        bootbox.alert({
+                            size: "small",
+                            title: "提示",
+                            message: d,
+                            callback: function () {
+                                $('#dgGrid').DataTable().ajax.reload()
+                            }
+                        })
+                    }
+                })
+            },
+            setEvent: function () {
+                $('a.delete-button').click(function () {
+                    var data = $('#dgGrid').DataTable().row($(this).parents('tr')).data();
+                    console.log(data)
+                    ui.deleted(data.id)
+                });
+                $('a.edit-button').click(function () {
+                    var data = $('#dgGrid').DataTable().row($(this).parents('tr')).data();
+                    console.log(data)
+                    ui.edit(data.id)
+                });
+            }
+        }
+        $(document).ready(function () {
+            ui.setGrid();
+        });
+    </script>
+</div>
+</body>
+</html>

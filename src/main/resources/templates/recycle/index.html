@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout::commonHeader('回收站')">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="/assets/css/bootstrap-">
+</head>
+
+<body class="no-skin">
+<div th:replace="layout::commonNar"></div>
+<input type="hidden" id="hidden-currentUserId" th:value="${currentUserId}">
+<div class="main-container ace-save-state" id="main-container">
+    <div th:replace="layout::commonSidebar"></div>
+    <div class="main-content">
+        <div class="main-content-inner">
+            <div class="page-content" id="main" style="">
+                <div class="tableTools-container " id="controlPanel">
+                    <button class="btn btn-white btn-info btn-bold" onclick="ui.deleteall();">
+                        <i class="ace-icon fa fa-remove bigger-120 blue"></i>
+                        清空
+                    </button>
+                    <button class="btn btn-white btn-info btn-bold" onclick="ui.backall();">
+                        <i class="ace-icon fa fa-file-o bigger-120 blue"></i>
+                        还原
+                    </button>
+                </div>
+                <table id="dgGrid" class="display table table-striped table-bordered table-hover dataTable no-footer"
+                       style="width:100%">
+                    <thead>
+                    <tr>
+                        <th>文件名</th>
+                        <th>大小</th>
+                        <th>删除时间</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div><!-- /.page-content -->
+        </div>
+    </div><!-- /.main-content -->
+    <div th:replace="layout::commonFooter">
+    </div>
+    <script>
+        var ui = {
+            deleteall: function () {
+                bootbox.confirm("你确认要清空，清空后无法还原?", function (result) {
+                    if (result) {
+                        bootbox.prompt({
+                            inputType: 'password',
+                            size: "small",
+                            title: "请输入登录密码！",
+                            callback: function (result) {
+                                if(result==null)return;
+                                if (result == "") {
+                                    bootbox.alert({message: "密码为空，无法清空"});
+                                } else {
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '/user/validatePwd',
+                                        data: JSON.stringify({pwd: result}),
+                                        success: function (rr) {
+                                            if(!rr.success){
+                                                ui.clear();
+                                            }else {
+                                                bootbox.alert({
+                                                    size: "small",
+                                                    title: "提示",
+                                                    message:rr.errorMsg
+                                                });
+                                            }
+                                        }
+                                    })
+
+                                }
+                            }
+                        })
+                    }
+                })
+            },
+            clear: function () {
+                $.ajax({
+                    type: 'DELETE',
+                    url: '/recycle/deleteall',
+                    success: function () {
+                        bootbox.alert({
+                            size: "small",
+                            title: "提示",
+                            message: '操作成功',
+                            callback: function () {
+                                $('#dgGrid').DataTable().ajax.reload();
+                            }
+                        })
+                    }
+                })
+            },
+            deleted: function (id) {
+                bootbox.confirm("你确认要彻底删除此文件，删除后无法还原?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            type: 'DELETE',
+                            url: '/recycle/delete/' + id,
+                            success: function () {
+                                bootbox.alert({
+                                    size: "small",
+                                    title: "提示",
+                                    message: '操作成功',
+                                    callback: function () {
+                                        $('#dgGrid').DataTable().ajax.reload()
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
+            },
+            setGrid: function () {
+                $('#dgGrid').DataTable({
+                    "serverSide": true,
+                    stripeClasses: ["odd", "even"],  //为奇偶行加上样式，兼容不支持CSS伪类的场合
+                    "pageLength": 10,  //首次加载的数据条数
+                    "ordering": false, //排序操作在服务端进行，所以可以关了。
+                    "paging": true,
+                    "pagingType": "simple_numbers",
+                    "autoWidth": false,
+                    renderer: "bootstrap",  //渲染样式：Bootstrap和jquery-ui
+                    "searching": true,//禁用搜索
+                    ajax: function (d, callback, settings) {
+                        var param = {};
+                        param.page = d.start / d.length;
+                        param.size = d.length;
+                        param.search = d.search.value;
+                        $.ajax({
+                            url: '/recycle/',
+                            data: param,
+                            success: function (result) {
+                                var returnData = {
+                                    draw: d.draw,
+                                    recordsTotal: result.totalElements,
+                                    recordsFiltered: result.totalElements,
+                                    totalPages: result.totalPages,
+                                    data: result.content,
+                                };
+                                callback(returnData)
+                            }
+                        })
+                    },
+                    language: {
+                        url: '/assets/localisation/Chinese.json'
+                    },
+                    columns: [
+                        {data: 'filename'},
+                        {data: 'filesize'},
+                        {data: 'addtime'},
+                        {data: 'fileId'}
+                    ],
+                    'columnDefs': [
+                        {
+                            'targets':0,
+                            'render':function ( data, type, full, meta ) {
+                                if(full.filetype==0){
+                                    return '<a href="javascript:void(0);" class="a-folder"><div><i class="fa fa-folder fa-2x"></i><span style="margin-left:7px;">'+full.filename+'</span></div></a>';
+                                } else {
+                                    return full.filename;
+                                }
+                            }
+                        },
+                        {
+                            'targets': 1,
+                            'render': function (data, type, full, meta) {
+                                if (full.filetype == 0) {
+                                    return '-'
+                                }
+                                else {
+                                    return cc.bytesToSize(full.filesize);
+                                }
+                            }
+                        }, {
+                            targets: 3,
+                            render: function (data, type, full, meta) {
+                                return '<div  class="action-buttons">' +
+                                    '<a class="red back-button" href="#" title="还原文件" >\n' +
+                                '\t\t<i class="ace-icon fa fa-file-o bigger-130"></i>\n' +
+                                '\t</a>&nbsp;&nbsp;&nbsp;\n'+
+                                    '<a class="red delete-button" href="#" title="清空" >\n' +
+                                    '\t\t<i class="ace-icon fa fa-trash-o bigger-130"></i>\n' +
+                                    '\t</a>\n'+
+                                '</div>'
+                            }
+                        }
+                    ]
+                }).on('draw', function () {
+                    ui.setEvent();
+                });
+            },
+            setEvent: function () {
+                $('a.delete-button').click(function () {
+                    var data = $('#dgGrid').DataTable().row($(this).parents('tr')).data();
+                    console.log(data)
+                    ui.deleted(data.id)
+                });
+                $('a.back-button').click(function () {
+                    var data = $('#dgGrid').DataTable().row($(this).parents('tr')).data();
+                    ui.backFile(data.id);
+                });
+            },
+            backall:function(){
+                $.ajax({
+                    url:'/recycle/backall',
+                    type:'POST',
+                    success:function (result) {
+                        bootbox.alert({
+                            size: "small",
+                            title: "提示",
+                            message: "操作成功",
+                            callback: function () {
+                                $('#dgGrid').DataTable().ajax.reload();
+                            }
+                        })
+                    }
+                })
+            },
+            backFile:function (id) {
+                $.ajax({
+                    url:'/recycle/backfile/'+id,
+                    type:'POST',
+                    success:function (result) {
+                        bootbox.alert({
+                            size: "small",
+                            title: "提示",
+                            message: "操作成功",
+                            callback: function () {
+                                $('#dgGrid').DataTable().ajax.reload();
+                            }
+                        })
+                    }
+                })
+            }
+        }
+        $(document).ready(function () {
+            ui.setGrid();
+        });
+    </script>
+</div>
+</body>
+</html>

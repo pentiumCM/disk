@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout::commonHeader('用户管理')">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+
+<body class="no-skin">
+<div th:replace="layout::commonNar"></div>
+<input type="hidden" id="hidden-currentUserId" th:value="${currentUserId}">
+<div class="main-container ace-save-state" id="main-container" >
+    <div th:replace="layout::commonSidebar"></div>
+    <div  class="main-content">
+        <form class="form-horizontal">
+            <label for="" class="">附件：</label>
+            <div id="uploadfile" style="position: relative"></div>
+            <br />
+
+            <label for="" class="">附件：</label>
+            <div id="uploadfile1"  style="position: relative"></div>
+            <br />
+            <label for="" class="">附件：</label>
+            <div id="uploadfile2"  style="position: relative"></div>
+            <br />
+            <label for="" class="">查看页面：</label>
+            <div id="check"></div>
+        </form>
+    </div><!-- #dialog-message -->
+    <div th:replace="layout::commonFooter">
+    </div>
+    <link rel="stylesheet" href="/js/webuploader.css">
+    <script src="/js/webuploader.min.js"></script>
+    <script src="/js/abp.webuploader.js"></script>
+    <script>
+        $(document).ready(function() {
+            $(function () {
+                //实例化文件上传，webuploader的属性都可以使用
+                $("#uploadfile").powerWebUpload({
+                    // fileNumLimit: 2,
+                    // auto: false
+                });
+                $("#uploadfile1").powerWebUpload({
+                    // fileNumLimit: 2,
+                    // auto: false
+                });
+
+                $("#uploadfile2").powerWebUpload({
+                    // fileNumLimit: 2,
+                    // auto: false
+                });
+                //编辑时编辑值
+                webuploader.loadFile({
+                    elem: '#uploadfile',
+                    rows: [{
+                        Id: 1,
+                        FileName: '-1d2fab5b7544b288.jpg',
+                        FileToken: '9a92df63-24fc-4592-968c-efcf70cea290.jpg',
+                        FileSize: '2333'
+                    }]
+                });
+                //查看页面，只需要调用 这个方法即可，isCheck为true时为查看页面，没有删除按钮
+                webuploader.loadFile({
+                    elem: '#check',
+                    isCheck:true,
+                    rows: [{
+                        Id: 1,
+                        FileName: '-1d2fab5b7544b288.jpg',
+                        FileToken: '9a92df63-24fc-4592-968c-efcf70cea290.jpg',
+                        FileSize: '2333'
+                    }]
+                });
+            });
+            //如何获取上传文件的地址  ，多文件上传时，文件名最后以*分割     9a92df63-24fc-4592-968c-efcf70cea290.jpg*9a92df63-24fc-4592-968c-efcf70cea290.jpg
+            function getFiles() {
+                var data = $("#uploadfile").GetFilesAddress();
+                return data;
+            }
+        } );
+    </script>
+</div>
+</body>
+</html>

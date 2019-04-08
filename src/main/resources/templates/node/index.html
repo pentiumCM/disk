@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout::commonHeader('')">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="/assets/css/bootstrap-">
+</head>
+
+<body class="no-skin">
+<div th:replace="layout::commonNar"></div>
+<input type="hidden" id="hidden-currentUserId" th:value="${currentUserId}">
+<div class="main-container ace-save-state" id="main-container">
+    <div th:replace="layout::commonSidebar"></div>
+    <div class="main-content">
+        <div class="main-content-inner">
+            <div class="page-content" id="main" style="">
+                <div class="tableTools-container " id="controlPanel">
+                    <button class="btn btn-white btn-info btn-bold" onclick="ui.btnBack();">
+                        <i class="ace-icon fa fa-backward bigger-120 blue"></i>
+                        上一级
+                    </button>
+                    <button id="btn_add" type="button" class="btn btn-white btn-info btn-bold"
+                            onclick="ui.btnUpload();">
+                        <i class="ace-icon fa fa-upload bigger-120 blue"></i>上传
+                    </button>
+                </div>
+                <section class="content-header">
+                    <ol class="breadcrumb">
+                        <li><a href="#"><i class="fa fa-dashboard"></i> 全部文件</a></li>
+                    </ol>
+                </section>
+                <table id="dgGrid" class="display table table-striped table-bordered table-hover dataTable no-footer"
+                       style="width:100%">
+                    <thead>
+                    <tr>
+                        <th style="width:60%;">文件名</th>
+                        <th>大小</th>
+                        <th>修改日期</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div><!-- /.page-content -->
+        </div>
+    </div><!-- /.main-content -->
+    <div id="upload-file" class="hide">
+        <form class="form-horizontal" role="form">
+            <div class="form-group">
+                <label class="col-sm-2 control-label no-padding-right"> 选择要上传的文件夹 </label>
+                <div class="col-sm-10">
+                    <div class="clearfix">
+                        <select class="form-control" name="folderid" id="folderid">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label no-padding-right"> 选择要上传的文件 </label>
+                <div class="col-sm-10">
+                    <div class="clearfix">
+                        <div id="file-elem" uploadtype="file"></div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div id="folder-message" class="hide">
+        <form class="form-horizontal" role="form">
+            <div class="form-group">
+                <label class="col-sm-2 control-label no-padding-right"> 请输入文件夹名称 </label>
+                <div class="col-sm-10">
+                    <div class="clearfix">
+                        <input type="hidden" name="pid" id="pid" value="0">
+                        <input type="text" id="folderName" name="folderName" placeholder=""
+                               class="col-xs-10 col-sm-10"/>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div id="file-message" class="hide">
+        <form class="form-horizontal" role="form">
+            <div class="form-group">
+                <label class="col-sm-2 control-label no-padding-right"> 请输入文件名称</label>
+                <div class="col-sm-10">
+                    <div class="clearfix">
+                        <input type="text" id="fileName" name="fileName" placeholder="" class="col-xs-10 col-sm-10"/>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div><!-- #dialog-message -->
+
+    <div id="share-message" class="hide">
+        <form class="form-horizontal" role="form">
+            <div class="form-group">
+                <label class="col-sm-2 control-label no-padding-right">分享形式</label>
+                <div class="col-sm-10">
+                    <div class="clearfix">
+                        <div class="radio">
+                            <label>
+                                <input name="ifSecert" type="radio" class="ace" checked value="false"/>
+                                <span class="lbl"> 没有密码</span>
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input name="ifSecert" type="radio" class="ace" value="true"/>
+                                <span class="lbl"> 加密 </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label no-padding-right"> 有效时间</label>
+                <div class="col-sm-10">
+                    <div class="clearfix">
+                        <div class="radio">
+                            <label>
+                                <input name="overType" type="radio" class="ace" checked value="0"/>
+                                <span class="lbl">七天</span>
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input name="overType" type="radio" class="ace" value="1"/>
+                                <span class="lbl"> 一个月</span>
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input name="overType" type="radio" class="ace" value="2"/>
+                                <span class="lbl"> 永久 </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div id="modal-tags" class="hide">
+
+                <table class="table table-striped table-bordered table-hover no-margin-bottom no-border-top" id="table-tags">
+                    <thead>
+                        <tr>
+                            <th>标签</th>
+                            <th>场景名称</th>
+                            <th>分值</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+    </div>
+    <div th:replace="layout::commonFooter">
+    </div>
+    <link rel="stylesheet" href="/js/webuploader.css">
+    <script src="/js/webuploader.min.js"></script>
+    <script src="/js/abp.webuploader.js"></script>
+    <script src="/js/base.js"></script>
+    <script>
+        var uploader;
+        var fileType = cc.getUrlParam("fileType");
+        var title = cc.getUrlParam('title');
+        setTimeout(function () {
+            cc.setNavTitle(title);
+        }, 500);
+        var ui = {
+            btnUpload: function () {
+                $('#folderid').empty();
+                $.ajax({
+                    url: '/folder/getTreePosition',
+                    success: function (dd) {
+                        var result = '<option value="0"> -- 请选择 -- </option>';
+                        $.each(dd, function (i, v) {
+                            result += cc.formatStr('<option value="{0}">{1}</option>', v.id, v.folderName)
+                        })
+                        $('#folderid').append(result)
+                    }
+                });
+                if ($('.webuploader-container').size() == 0) {
+                    uploader = $('#upload-file #file-elem').powerWebUpload({
+                        auto: false
+                    });
+                }
+
+                var dialog = $('#upload-file').removeClass('hide').dialog({
+                    modal: true,
+                    title: "<div class='widget-header widget-header-small'><h4 class='smaller'><i class='ace-icon fa fa-check'></i>文件上传</h4></div>",
+                    title_html: true,
+                    width: '520',
+                    height: '700',
+                    buttons: [
+                        {
+                            text: "取消",
+                            "class": "btn btn-minier",
+                            click: function () {
+                                $(this).dialog("close");
+                            }
+                        },
+                        {
+                            text: "确认",
+                            "class": "btn btn-primary btn-minier",
+                            click: function () {
+                                if (!$('#upload-file  form').valid()) {
+                                    return false;
+                                }
+                                var formObj = $('#upload-file  form').serializeObject();
+                                formObj.fileToken = $('#file-elem').GetFilesAddress();
+
+                                var $this = $(this);
+                                $.ajax({
+                                    type: 'post',
+                                    url: '/node/uploadFiles',
+                                    data: JSON.stringify(formObj),
+                                    success: function (result) {
+                                        $('.uploader-list').empty();
+                                        uploader.reset();
+                                        bootbox.alert({
+                                            size: "small",
+                                            title: "提示",
+                                            message: result.errMsg,
+                                            callback: function () {
+                                                $('#dgGrid').DataTable().ajax.reload();
+                                                ui.setEvent();
+                                            }
+                                        })
+                                        if (result.success) {
+                                            $this.dialog("close");
+                                        }
+                                    }
+                                })
+                            }
+                        }
+                    ]
+                });
+            },
+            validated: function () {
+                $('#folder-message form').jqvalidate({
+                    rules: {
+                        folderName: {
+                            required: true
+                        }
+                    }
+                });
+                $('#file-message form').jqvalidate({
+                    rules: {
+                        fileName: {
+                            required: true
+                        }
+                    }
+                });
+            },
+            btnEditName: function (Id, typeCode, fileName) {
+                var dialogId = '#folder-message';
+                var title = "系统";
+                var url = "/folder/edit";
+                //文件
+                if (typeCode != 0) {
+                    dialogId = '#file-message';
+                    url = "/node/edit";
+                    $('#fileName').val(fileName)
+                } else {//文件夹
+                    $(dialogId + ' #pid').val(ui.pId);
+                    if (fileName) {
+                        $('#folderName').val(fileName)
+                    }
+                }
+                var dialog = $(dialogId).removeClass('hide').dialog({
+                    modal: true,
+                    title: "<div class='widget-header widget-header-small'><h4 class='smaller'><i class='ace-icon fa fa-check'></i>" + title + "</h4></div>",
+                    title_html: true,
+                    width: '520',
+                    buttons: [
+                        {
+                            text: "取消",
+                            "class": "btn btn-minier",
+                            click: function () {
+                                $(this).dialog("close");
+                            }
+                        },
+                        {
+                            text: "确认",
+                            "class": "btn btn-primary btn-minier",
+                            click: function () {
+                                if (!$(dialogId + ' form').valid()) {
+                                    return false;
+                                }
+
+                                var formObj = $(dialogId + ' form').serializeObject();
+                                formObj.id = Id;
+                                var $this = $(this);
+                                $.ajax({
+                                    type: 'post',
+                                    url: url,
+                                    data: JSON.stringify(formObj),
+                                    success: function (result) {
+                                        bootbox.alert({
+                                            size: "small",
+                                            title: "提示",
+                                            message: result.errMsg,
+                                            callback: function () {
+                                                $('#dgGrid').DataTable().ajax.reload();
+                                                ui.setEvent();
+                                            }
+                                        })
+                                        if (result.success) {
+                                            $this.dialog("close");
+                                        }
+                                    }
+                                })
+                            }
+                        }
+                    ]
+                });
+            },
+            deleted: function (id, dataType) {
+                bootbox.confirm("你确认要删除?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            type: 'DELETE',
+                            url: '/node/delete/' + id + '/' + dataType,
+                            success: function () {
+                                bootbox.alert({
+                                    size: "small",
+                                    title: "提示",
+                                    message: '操作成功',
+                                    callback: function () {
+                                        $('#dgGrid').DataTable().ajax.reload()
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
+            },
+            setGrid: function () {
+                $('#dgGrid').DataTable({
+                    "serverSide": true,
+                    stripeClasses: ["odd", "even"],  //为奇偶行加上样式，兼容不支持CSS伪类的场合
+                    "pageLength": 10,  //首次加载的数据条数
+                    "ordering": false, //排序操作在服务端进行，所以可以关了。
+                    "paging": false,
+                    "pagingType": "simple_numbers",
+                    "autoWidth": false,
+                    renderer: "bootstrap",  //渲染样式：Bootstrap和jquery-ui
+                    "searching": true,//禁用搜索
+                    ajax: function (d, callback, settings) {
+                        var param = {};
+                        param.search = d.search.value;
+                        param.fileType = fileType;
+                        $.ajax({
+                            url: '/node/getNodes',
+                            data: param,
+                            success: function (result) {
+                                if (result.length) {
+                                    var returnData = {
+                                        draw: d.draw,
+                                        recordsTotal: result.length,
+                                        recordsFiltered: result.length,
+                                        data: result,
+                                    };
+                                    callback(returnData)
+                                } else {
+                                    callback({
+                                        draw: 0,
+                                        recordsTotal: result.length,
+                                        recordsFiltered: result.length,
+                                        data: result,
+                                    })
+                                }
+                            }
+                        })
+                    },
+                    language: {
+                        url: '/assets/localisation/Chinese.json'
+                    },
+                    columns: [
+                        {data: 'fileName'},
+                        {data: 'fileSize'},
+                        {data: 'updatetime'},
+                        {data: 'id'}
+                    ],
+                    'columnDefs': [
+                        {
+                            'targets': 0,
+                            'render': function (data, type, full, meta) {
+                                if (full.fileType == 0) {
+                                    return '<a href="javascript:void(0);" class="a-folder"><div><i class="fa fa-folder fa-2x"></i><span style="margin-left:7px;">' + full.fileName + '</span></div></a>';
+                                }
+                                else return full.fileName;
+                            }
+                        },
+                        {
+                            'targets': 1,
+                            'render': function (data, type, full, meta) {
+                                if (full.fileType == 0) {
+                                    return '-'
+                                }
+                                else {
+                                    return cc.bytesToSize(full.fileSize);
+                                }
+                            }
+                        },
+                        {
+                            targets: 3,
+                            render: function (data, type, full, meta) {
+                                var text = full.fileType != 0 ? '\t<a class="red share-button" href="#" title="分享" >\n' +
+                                    '<i class="ace-icon fa fa-share bigger-130"></i>\n' +
+                                    '</a>\n' +
+                                    '<a class="red download-button" href="#" title="下载" >\n' +
+                                    '<i class="ace-icon fa fa-download bigger-130"></i>\n' +
+                                    '</a>\n' : "";
+
+                                var n=full.fileType==1?"<a class=\"red tag-button\" href=\"#\" title=\"查看分类标签\" ><i class=\"ace-icon fa fa-tag bigger-130\"></i></a>":"";
+
+                                return cc.formatStr('<div class="action-buttons">'+n + text + '<a class="green edit-button" href="#" title="编辑名称">\n' +
+                                    '\t\t<i class="ace-icon fa fa-pencil bigger-130"></i>\n' +
+                                    '\t</a>\n' +
+                                    '\n' +
+                                    '\t<a class="red delete-button" href="#" title="删除" >\n' +
+                                    '\t\t<i class="ace-icon fa fa-trash-o bigger-130"></i>\n' +
+                                    '\t</a>\n' +
+                                    '</div>');
+                            }
+                        }
+                    ]
+                }).on('draw', function () {
+                    ui.setEvent();
+                });
+            },
+            setEvent: function () {
+                $('a.a-folder').click(function () {
+                    var data = $('#dgGrid').DataTable().row($(this).parents('tr')).data();
+                    ui.pId = data.id;
+                    ui.pathList.push({
+                        id: data.id,
+                        text: data.fileName
+                    });
+                    ui.pathShow();
+                    $('#dgGrid').DataTable().ajax.reload()
+                });
+                $('a.share-button').click(function () {
+                    var data = $('#dgGrid').DataTable().row($(this).parents('tr')).data();
+                    console.log(data)
+                    ui.btnShare(data)
+                });
+                $('a.edit-button').click(function () {
+                    var data = $('#dgGrid').DataTable().row($(this).parents('tr')).data();
+                    console.log(data)
+                    ui.btnEditName(data.id, data.fileType, data.fileName)
+                });
+                $('a.delete-button').click(function () {
+                    var data = $('#dgGrid').DataTable().row($(this).parents('tr')).data();
+                    ui.deleted(data.id, data.fileType)
+                });
+                $('a.download-button').click(function () {
+                    var data = $('#dgGrid').DataTable().row($(this).parents('tr')).data();
+                    if (data.fileType != 0) {
+                        window.open('/file/download?fileToken=' + data.fileToken + '&newName=' + data.fileName)
+                    } else {
+                        bootbox.alert({
+                            size: "small",
+                            title: "提示",
+                            message: '暂不支持文件夹下载!',
+                            callback: function () {
+                                $('#dgGrid').DataTable().ajax.reload()
+                            }
+                        })
+                    }
+                });
+
+                $('a.tag-button').click(function () {
+                    var data = $('#dgGrid').DataTable().row($(this).parents('tr')).data();
+                        $.ajax({
+                            type:'get',
+                            url:'/fileGeneral/?fileId='+data.id,
+                            success:function (res) {
+                            var html='';
+                            $.each(res,function (i,v) {
+                                html+=cc.formatStr( '<tr><td>{0}</td><td>{1}</td><td>{2}</td></tr>',v.root,v.keyword,v.score);
+                            });
+                            $('#modal-tags #table-tags tbody').empty();
+                            $('#modal-tags #table-tags tbody').append(html);
+                            var dialog = $('#modal-tags').removeClass('hide').dialog({
+                                modal: true,
+                                title: "<div class='widget-header widget-header-small'><h4 class='smaller'><i class='ace-icon fa fa-tags'></i>图片标签自动识别</h4></div>",
+                                title_html: true,
+                                width: '520',
+                                buttons: [
+                                    {
+                                        text: "关闭",
+                                        "class": "btn btn-minier",
+                                        click: function () {
+                                            $(this).dialog("close");
+                                        }
+                                    }
+                                ]
+                            });
+
+                        }
+                    })
+
+
+                })
+            },
+            pId: 0,
+            pathList: [{id: 0, text: '全部文件'}],
+            btnBack: function () {
+                var len = ui.pathList.length - 1;
+                if (len <= 0) {
+
+                } else {
+                    ui.pathList.pop();
+                    ui.pathShow();
+                    ui.btnJump(ui.pathList[len - 1].id);
+                }
+            },
+            btnJump: function (pId) {
+                ui.pId = pId;
+                $('#dgGrid').DataTable().ajax.reload();
+                var len = ui.pathList.length - 1;
+                while (len >= 0 && ui.pathList[len].id != pId) {
+                    ui.pathList.pop();
+                    len--;
+                }
+                ui.pathShow();
+            },
+            pathShow: function () {
+                var _html = '';
+                _html += '<li><a href="javascript:ui.btnJump(0)"><i class="fa fa-dashboard"></i> 全部文件</a></li>'
+                for (var i = 1; i < ui.pathList.length; i++) {
+                    var v = ui.pathList[i];
+                    if (i == ui.pathList.length - 1) {
+                        _html += cc.formatStr('<li data-id="{0}" class="active">{1}</li>', v.id, v.text);
+                    } else {
+                        _html += cc.formatStr('<li data-id="{0}"><a href="javascript:ui.btnJump({0})">{1}</a></li>', v.id, v.text);
+                    }
+                }
+                $('.breadcrumb').html(_html);
+            },
+            btnShare: function (data) {
+                var dialog = $('#share-message').removeClass('hide').dialog({
+                    modal: true,
+                    title: "<div class='widget-header widget-header-small'><h4 class='smaller'><i class='ace-icon fa fa-check'></i>分享设置</h4></div>",
+                    title_html: true,
+                    width: '520',
+                    buttons: [
+                        {
+                            text: "取消",
+                            "class": "btn btn-minier",
+                            click: function () {
+                                $(this).dialog("close");
+                            }
+                        },
+                        {
+                            text: "确认",
+                            "class": "btn btn-primary btn-minier",
+                            click: function () {
+                                if (!$('#share-message form').valid()) {
+                                    return false;
+                                }
+
+                                var formObj = $('#share-message form').serializeObject();
+                                formObj.nodeId = data.id;
+                                formObj.shareFileName = data.fileName;
+                                var $this = $(this);
+                                $.ajax({
+                                    type: 'post',
+                                    url: '/shareFile/edit',
+                                    data: JSON.stringify(formObj),
+                                    success: function (result) {
+                                        $.ajax({
+                                            url: '/shareFile/' + result.errCode,
+                                            type: 'get',
+                                            success: function (rr) {
+                                                var d = cc.formatStr("下载链接:<a href='{0}' target='_blank'>{0}</a></br>", 'http://localhost:8080/shareFile/shareIndex?shareToken=' + rr.shareToken);
+                                                if (rr.ifSecert == true) {
+                                                    d += cc.formatStr("提取码:<input type='text' value='{0}' style='width:100%;' readonly/></br>", rr.extractState);
+                                                }
+                                                bootbox.alert({
+                                                    size: "small",
+                                                    title: "提示",
+                                                    message: d,
+                                                    callback: function () { /* your callback code */
+                                                        $('#dgGrid').DataTable().ajax.reload()
+                                                    }
+                                                })
+                                            }
+                                        })
+
+                                        $this.dialog("close");
+                                    }
+                                })
+                            }
+                        }
+                    ]
+                });
+            }
+        }
+        $(document).ready(function () {
+            ui.setGrid();
+            ui.validated();
+        });
+    </script>
+</div>
+</body>
+</html>

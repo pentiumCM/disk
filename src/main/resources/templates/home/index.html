@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout::commonHeader('仪表板')">
+</head>
+
+<body class="no-skin">
+<div th:replace="layout::commonNar"></div>
+<input type="hidden" id="hidden-currentUserId" th:value="${currentUserId}">
+<div class="main-container ace-save-state" id="main-container" >
+    <div th:replace="layout::commonSidebar"></div>
+
+    </div><!-- #dialog-message -->
+    <div th:replace="layout::commonFooter">
+    </div>
+    <script>
+
+    </script>
+</div>
+</body>
+</html>

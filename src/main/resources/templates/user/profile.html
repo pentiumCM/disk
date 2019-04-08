@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="layout::commonHeader('个人资料')">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+
+<body class="no-skin">
+<div th:replace="layout::commonNar"></div>
+<input type="hidden" id="hidden-currentUserId" th:value="${currentUserId}">
+<div class="main-container ace-save-state" id="main-container">
+    <div th:replace="layout::commonSidebar"></div>
+    <div class="main-content">
+        <div class="main-content-inner">
+            <div class="page-content" id="main" style="">
+
+                <ul class="nav nav-tabs padding-18">
+                    <li class="active">
+                        <a data-toggle="tab" href="#user-profile">
+                            <i class="green ace-icon fa fa-user bigger-120"></i>
+                            个人资料
+                        </a>
+                    </li>
+                    <li>
+                        <a data-toggle="tab" href="#reset-pwd">
+                            <i class="orange ace-icon fa fa-rss bigger-120"></i>
+                            修改密码
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="tab-content  no-border padding-24">
+                    <div class="tab-pane in active" id="user-profile">
+                        <div class="user-profile row">
+                            <div class="col-xs-12 col-sm-3 center">
+                                <span class="profile-picture">
+                                    <img id="avatar" class="editable img-responsive"  alt="Avatar"
+                                         src="/assets/images/avatars/profile-pic.jpg" style="width: 180px;height:200px;"/>
+                                </span>
+                                <div class="space-4"></div>
+                                <div class="width-80 label label-info label-xlg arrowed-in arrowed-in-right">
+                                    <div class="inline position-relative">
+                                        <a href="#" class="user-title-label dropdown-toggle" data-toggle="dropdown">
+                                            <i class="ace-icon fa fa-circle light-green"></i>
+                                            &nbsp;
+                                            <span class="white" id="whit-username"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-9">
+                                <div class="space-12"></div>
+                                <form id="user-form" class="profile-user-info profile-user-info-striped">
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-name"> 账号</div>
+                                        <div class="profile-info-value">
+                                            <input type="text" id="loginName" name="loginName" readonly/>
+                                        </div>
+                                    </div>
+
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-name"> 性别</div>
+
+                                        <div class="profile-info-value">
+                                            <div class="radio">
+                                                <label>
+                                                    <input name="sex" type="radio" class="ace" value="1"/>
+                                                    <span class="lbl"> 男</span>
+                                                </label>
+                                                <label>
+                                                    <input name="sex" type="radio" class="ace" value="2"/>
+                                                    <span class="lbl"> 女</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-name"> 昵称</div>
+
+                                        <div class="profile-info-value">
+                                            <input type="text" id="nickName" name="nickName" placeholder="昵称"
+                                                   class="col-xs-10 col-sm-10"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-name"> 最后登录时间</div>
+
+                                        <div class="profile-info-value">
+                                            <input type="text" id="lastLoginTime " name="lastLoginTime" readonly/>
+                                        </div>
+                                    </div>
+
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-name"> 角色</div>
+
+                                        <div class="profile-info-value">
+                                            <input type="text" id="role" name="role" readonly/>
+                                        </div>
+                                    </div>
+
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-name"> 操作</div>
+
+                                        <div class="profile-info-value">
+                                            <div class="col-md-2">
+                                                <input type="hidden" name="id">
+                                                <button class="btn-block btn btn-primary" type="button"
+                                                        id="btn-user-save">保存
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div id="reset-pwd" class="tab-pane">
+                        <div class="user-profile row">
+                            <div class="col-xs-12 col-sm-9">
+                                <div class="space-12"></div>
+                                <form id="reset-pwd-form" class="profile-user-info profile-user-info-striped">
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-name"> 账号</div>
+                                        <div class="profile-info-value">
+                                            <input type="text" id="" name="loginName" readonly/>
+                                        </div>
+                                    </div>
+
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-name"> 旧密码</div>
+
+                                        <div class="profile-info-value">
+                                            <input type="password" id="pwdold" name="pwdold" placeholder="旧密码"
+                                                   class="col-xs-10 col-sm-10"/>
+                                        </div>
+                                    </div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-name"> 新密码</div>
+
+                                        <div class="profile-info-value">
+                                            <input type="password" id="pwd" name="pwd" placeholder="新密码"
+                                                   class="col-xs-10 col-sm-10"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-name"> 重复密码</div>
+
+                                        <div class="profile-info-value">
+                                            <input type="password" id="pwdrepeat" name="pwdrepeat" placeholder="重复密码"
+                                                   class="col-xs-10 col-sm-10"/>
+                                        </div>
+                                    </div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-name"> 操作</div>
+
+                                        <div class="profile-info-value">
+                                            <div class="col-md-2">
+                                                <button class="btn-block btn btn-primary" type="button"
+                                                        id="btn-reset-pwd-save">确认修改
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /.page-content -->
+        </div>
+    </div><!-- /.main-content -->
+    <div th:replace="layout::commonFooter">
+    </div>
+    <script src="/assets/js/bootstrap-editable.min.js"></script>
+    <script src="/assets/js/jquery.gritter.min.js"></script>
+    <script src="/assets/js/ace-editable.min.js"></script>
+    <script>
+        var ui = ui || {};
+        //editables on first profile page
+        $.fn.editable.defaults.mode = 'inline';
+        $.fn.editableform.loading = "<div class='editableform-loading'><i class='ace-icon fa fa-spinner fa-spin fa-2x light-blue'></i></div>";
+        $.fn.editableform.buttons = '<button type="submit" class="btn btn-info editable-submit"><i class="ace-icon fa fa-check"></i></button>'+
+            '<button type="button" class="btn editable-cancel"><i class="ace-icon fa fa-times"></i></button>';
+
+
+        $(document).ready(function () {
+            $.extend(ui, {
+                setForm: function () {
+                    $.ajax({
+                        url: '/user/getCurrentUser',
+                        success: function (d) {
+                            if (d.role == 'User') {
+                                d.role = '普通用户';
+                            } else {
+                                d.role = '超级管理员';
+                            }
+                            $("#reset-pwd-form input[name=loginName]").val(d.loginName);
+                            $('#whit-username').text(d.loginName)
+                            $('#user-form').loadJson(d);
+                            if(d.picture){
+                                $('#avatar').get(0).src ='/file/download?fileToken='+d.picture+'&newName='+d.picture;
+                                $('#avatar').attr('token',d.picture);
+                            }
+                        }
+                    });
+                },
+                saveCurrentUser:function(){
+                    var formObj = $('#user-form').serializeObject();
+                    $.ajax({
+                        url: '/user/saveCurrentUser',
+                        type: 'post',
+                        data: JSON.stringify({
+                            nickName: formObj.nickName,
+                            sex: formObj.sex,
+                            picture:$('#avatar').attr('token')
+                        }),
+                        success: function () {
+                            bootbox.alert({
+                                size: "small",
+                                title: "提示",
+                                message: '操作成功'
+                            });
+                        }
+                    })
+                },
+                setEvent: function () {
+                    $('#btn-user-save').on('click', function () {
+                        ui.saveCurrentUser();
+                    })
+
+                    $('#btn-reset-pwd-save').on('click', function (object) {
+                        if (!$('#reset-pwd-form').valid()) {
+                            return false;
+                        }
+                        var formObj = $('#reset-pwd-form').serializeObject();
+                        $.ajax({
+                            url: '/user/ResetPwd',
+                            type: 'post',
+                            data: JSON.stringify(formObj),
+                            success: function (result) {
+                                if (!result.success) {
+                                    bootbox.alert({
+                                        size: "small",
+                                        title: "提示",
+                                        message: result.errMsg
+                                    })
+                                } else {
+                                    bootbox.alert({
+                                        size: "small",
+                                        title: "提示",
+                                        message: result.errMsg,
+                                        callback: function () {
+                                            $('#reset-pwd-form')[0].reset();
+                                            $("#reset-pwd-form input[name=loginName]").val(formObj.loginName);
+                                        }
+                                    })
+
+                                }
+                            }
+                        })
+                    });
+
+                    //another option is using modals
+                    $('#avatar').on('click', function(){
+                        var modal =
+                            '<div class="modal fade">\
+                              <div class="modal-dialog">\
+                               <div class="modal-content">\
+                                <div class="modal-header">\
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>\
+                                    <h4 class="blue">选择头像</h4>\
+                                </div>\
+                                \
+                                <form class="no-margin">\
+                                 <div class="modal-body">\
+                                    <div class="space-4"></div>\
+                                    <div style="width:75%;margin-left:12%;"><input type="file" name="file"  id="file-avatar"/></div>\
+                                 </div>\
+                                \
+                                 <div class="modal-footer center">\
+                                    <button type="submit" class="btn btn-sm btn-success"><i class="ace-icon fa fa-check"></i> 提交 </button>\
+                                    <button type="button" class="btn btn-sm" data-dismiss="modal"><i class="ace-icon fa fa-times"></i> 返回 </button>\
+                                 </div>\
+                                </form>\
+                            </div>\
+                             </div>\
+                            </div>';
+
+
+                        var modal = $(modal);
+                        modal.modal("show").on("hidden", function(){
+                            modal.remove();
+                        });
+
+                        var working = false;
+
+                        var form = modal.find('form:eq(0)');
+                        var file = form.find('input[type=file]').eq(0);
+                        file.ace_file_input({
+                            style:'well',
+                            btn_choose:'点我选择头像',
+                            btn_change:null,
+                            no_icon:'ace-icon fa fa-picture-o',
+                            thumbnail:'small',
+                            before_remove: function() {
+                                //don't remove/reset files while being uploaded
+                                return !working;
+                            },
+                            allowExt: ['jpg', 'jpeg', 'png', 'gif'],
+                            allowMime: ['image/jpg', 'image/jpeg', 'image/png', 'image/gif']
+                        });
+
+                        form.on('submit', function(){
+                            if(!file.data('ace_input_files')) return false;
+
+                            file.ace_file_input('disable');
+                            form.find('button').attr('disabled', 'disabled');
+                            form.find('.modal-body').append("<div class='center'><i class='ace-icon fa fa-spinner fa-spin bigger-150 orange'></i></div>");
+
+                            var formData = new FormData();
+                            formData.append("file",  file[0].files[0]);
+                            $.ajax({
+                                url:'/file/upload',
+                                type: "POST",
+                                data: formData,
+                                /**
+                                 *必须false才会自动加上正确的Content-Type
+                                 */
+                                contentType: false,
+                                /**
+                                 * 必须false才会避开jQuery对 formdata 的默认处理
+                                 * XMLHttpRequest会对 formdata 进行正确的处理
+                                 */
+                                processData: false,
+                                success:function (d) {
+                                    if(d.success){
+                                        form.find('button').removeAttr('disabled');
+                                        form.find('input[type=file]').ace_file_input('enable');
+                                        form.find('.modal-body > :last-child').remove();
+
+                                        modal.modal("hide");
+
+                                        var thumb = file.next().find('img').data('thumb');
+                                        if(thumb){
+                                            $('#avatar').get(0).src ='/file/download?fileToken='+d.errCode+'&newName='+d.errCode;
+                                            $('#avatar').attr('token',d.errCode);
+                                            ui.saveCurrentUser();
+                                        }
+
+                                    }else{
+                                        $.gritter.add({
+                                            title: '提示',
+                                            text: d.errMsg,
+                                            class_name: 'gritter-info gritter-center'
+                                        });
+                                    }
+                                }
+                            })
+
+                            return false;
+                            });
+
+                    });
+
+
+
+                },
+                setValidate: function () {
+                    $('#reset-pwd-form').jqvalidate({
+                        rules: {
+                            pwd: {
+                                required: true
+                            },
+                            pwdold: {
+                                required: true
+                            },
+                            pwdrepeat: {
+                                required: true
+                            }
+                        }
+                    });
+                }
+            });
+
+            ui.setForm();
+            ui.setEvent();
+            ui.setValidate();
+
+        });
+    </script>
+</div>
+</body>
+</html>
