@@ -208,6 +208,7 @@ public class FileController {
 
 
 
+    //MD5文件验证，如果服务器中已存在相同文件，则不重复上传
     @RequestMapping(value = "/md5validate", method = RequestMethod.POST)
     public ResponseBean<UnicomResponseEnums> Md5Validate(@RequestBody Node node) {
 
@@ -325,6 +326,7 @@ public class FileController {
                 newNode.setFileSize(Long.parseLong(fileSize));
                 nodeJpaRepository.saveAndFlush(newNode);
 
+                //调用百度云的图像识别接口
                 if(fileType==1){
                     AipImageClassify client = new com.baidu.aip.imageclassify.AipImageClassify(APP_ID, API_KEY, SECRET_KEY);
                     client.setConnectionTimeoutInMillis(2000);

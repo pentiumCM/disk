@@ -26,5 +26,4 @@ public class FileConfig {
         factory.setMaxRequestSize(maxRequestSize);
         return factory.createMultipartConfig();
     }
-
 }

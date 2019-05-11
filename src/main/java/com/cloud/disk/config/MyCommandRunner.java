@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 
 /**
+ * 设置是否启动浏览器
  * Created by cm on 2018/6/5.
  */
 @Component

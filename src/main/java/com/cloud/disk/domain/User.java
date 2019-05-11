@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import java.util.Date;
 
 @Entity(name = "user")
+//软删除
 @SQLDelete(sql = "update `user` set deleted = 1 where id = ?")
 @Where(clause = "deleted = false")
 public class User  extends BaseEntity{

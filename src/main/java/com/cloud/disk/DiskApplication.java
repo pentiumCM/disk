@@ -16,7 +16,6 @@ public class DiskApplication {
         SpringApplication.run(DiskApplication.class, args);
     }
 
-
     @Bean
     public static DefaultAdvisorAutoProxyCreator getDefaultAdvisorAutoProxyCreator(){
         DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator=new DefaultAdvisorAutoProxyCreator();
