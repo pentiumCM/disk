@@ -27,6 +27,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * 文件分享的控制层
+ */
 @RestController
 @RequestMapping(value = "/shareFile")
 public class ShareFileController {
