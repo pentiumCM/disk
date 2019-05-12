@@ -353,6 +353,9 @@ public class FileController {
         return ResponseBean.success(guid + ext);
     }
 
+    /**
+     * 图像识别的测试类
+     */
     @RequestMapping(value="/test1")
     public void test1()
     {
